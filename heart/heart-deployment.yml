@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heart
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: heart
+  template:
+    metadata:
+      labels:
+        app: heart
+    spec:
+      containers:
+        - image: gimenezm/heart:v0
+          imagePullPolicy: IfNotPresent
+          name: heart
+      restartPolicy: Always

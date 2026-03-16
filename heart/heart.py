@@ -1,82 +1,125 @@
+from flask import Flask, request, send_file, render_template_string
+from heart_utils import generate_heart_image, OUTPUT_PATH
+import random
 import os
-import turtle
-from flask import Flask, send_file, render_template_string
-from PIL import Image
+import requests
 
 app = Flask(__name__)
 
-# Dossier où l'image sera enregistrée
-OUTPUT_PATH = "heart.png"
-
-
-def draw_heart_to_image(path=OUTPUT_PATH):
-    # On utilise un écran hors‑écran (tkinter) classique
-    screen = turtle.Screen()
-    screen.bgcolor("black")
-    turtle.title("for bestie")
-
-    t = turtle.Turtle()
-    t.hideturtle()
-    t.color("red")
-    t.fillcolor("red")
-    t.begin_fill()
-
-    t.left(140)
-    t.forward(180)
-    t.circle(-90, 200)
-    t.setheading(60)
-    t.circle(-90, 200)
-    t.forward(100)
-
-    t.end_fill()
-
-    t.up()
-    t.setpos(-80, 150)
-    t.down()
-    t.color("white")
-    t.write("I LOVE YOU", font=("Rockwell Nova", 20, "bold"))
-
-    # Récupération du canvas tkinter
-    cv = screen.getcanvas()
-    ps_path = "heart.ps"
-    cv.postscript(file=ps_path)  # export PostScript [web:11]
-
-    # Conversion PS -> PNG avec Pillow [web:11]
-    img = Image.open(ps_path)
-    img.save(path, "PNG")
-
-    # Nettoyage
-    turtle.bye()
-    os.remove(ps_path)
-
-
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
-    # Page HTML qui affiche l'image
     html = """
-    <!doctype html>
-    <html lang="fr">
-      <head>
-        <meta charset="utf-8">
-        <title>Pour bestie</title>
-      </head>
-      <body style="background-color:black; display:flex; justify-content:center; align-items:center; height:100vh;">
-        <img src="/heart" alt="heart">
-      </body>
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background:#F6E6E8;
+            font-family:'Playfair Display',serif;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            margin:0;
+        }
+        .card {
+            background:white;
+            padding:40px;
+            border-radius:20px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.1);
+            text-align:center;
+            width:320px;
+        }
+        h1 {
+            font-family:'Great Vibes',cursive;
+            color:#5A3E46;
+            font-size:40px;
+            margin-bottom:25px;
+        }
+        label {
+            display:block;
+            margin-top:15px;
+            margin-bottom:5px;
+            color:#5A3E46;
+            font-size:14px;
+        }
+        input,button {
+            width:100%;
+            padding:10px;
+            border-radius:10px;
+            border:1px solid #ddd;
+        }
+        input[type="color"]{
+            padding:0;
+            height:40px;
+        }
+        button {
+            background:#F497B6;
+            color:white;
+            border:none;
+            margin-top:20px;
+            cursor:pointer;
+        }
+        button:hover {
+            background:#ec7ea7;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>Create a heart</h1>
+            <form action="/generate" method="post">
+                <label>Name</label>
+                <input type="text" name="name" placeholder="Enter a name" required>
+
+                <label>Message</label>
+                <input type="text" name="message" placeholder="Write a message" required>
+
+                <label>Choose the heart color</label>
+                <input type="color" name="color" value="#F497B6">
+
+                <button type="submit">Generate</button>
+            </form>
+        </div>
+    </body>
     </html>
     """
     return render_template_string(html)
 
+@app.route("/generate", methods=["POST"])
+def generate():
+    name = request.form["name"]
+    message = request.form["message"]
+    color = request.form["color"]
 
-@app.route("/heart")
+    try:
+        response = requests.get("http://titre/titre")  # service name
+        phrase = response.json().get("titre", "Have a good day!")
+    except requests.exceptions.RequestException:
+        phrase = "Have a good day!" 
+
+    # Generate the new heart image
+    generate_heart_image(name, message, color)
+
+    # HTML page with cache-busting query string for the image
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="background:#F6E6E8;text-align:center;padding-top:40px">
+        <img src="/heart.png?{random.randint(1, 1_000_000)}" style="width:600px">
+        <br><br>
+        <p style="font-size:20px;color:#5A3E46;margin-top:20px">{phrase}</p>
+        <br><br>
+        <a href="/">Create another</a>
+    </body>
+    </html>
+    """
+    return render_template_string(html)
+
+@app.route("/heart.png")
 def heart():
-    # Redessine à chaque requête pour regénérer l'image si besoin
-    if os.path.exists(OUTPUT_PATH):
-        os.remove(OUTPUT_PATH)
-    draw_heart_to_image(OUTPUT_PATH)
     return send_file(OUTPUT_PATH, mimetype="image/png")
 
-
 if __name__ == "__main__":
-    # Important : désactiver le reloader sinon turtle va être lancé deux fois
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5000)
