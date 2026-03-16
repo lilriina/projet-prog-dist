@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prog-dist
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prog-dist
+  template:
+    metadata:
+      labels:
+        app: prog-dist
+    spec:
+      containers:
+        - image: gimenezm/projet-prog-dist:v0
+          imagePullPolicy: IfNotPresent
+          name: projet-prog-dist
+      restartPolicy: Always
