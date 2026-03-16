@@ -2,6 +2,7 @@ from flask import Flask, request, send_file, render_template_string
 from heart_utils import generate_heart_image, OUTPUT_PATH
 import random
 import os
+import requests
 
 app = Flask(__name__)
 
@@ -92,9 +93,11 @@ def generate():
     message = request.form["message"]
     color = request.form["color"]
 
-    # Optional: delete old image to ensure regeneration
-    if os.path.exists(OUTPUT_PATH):
-        os.remove(OUTPUT_PATH)
+    try:
+        response = requests.get("http://titre/titre")  # service name
+        phrase = response.json().get("titre", "Have a good day!")
+    except requests.exceptions.RequestException:
+        phrase = "Have a good day!" 
 
     # Generate the new heart image
     generate_heart_image(name, message, color)
@@ -105,6 +108,8 @@ def generate():
     <html>
     <body style="background:#F6E6E8;text-align:center;padding-top:40px">
         <img src="/heart.png?{random.randint(1, 1_000_000)}" style="width:600px">
+        <br><br>
+        <p style="font-size:20px;color:#5A3E46;margin-top:20px">{phrase}</p>
         <br><br>
         <a href="/">Create another</a>
     </body>
