@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: titre
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: titre
+  template:
+    metadata:
+      labels:
+        app: titre
+    spec:
+      containers:
+        - image: gimenezm/titre:v0
+          imagePullPolicy: IfNotPresent
+          name: titre
+      restartPolicy: Always
