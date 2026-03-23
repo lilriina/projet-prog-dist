@@ -3,8 +3,22 @@ from heart_utils import generate_heart_image, OUTPUT_PATH
 import random
 import os
 import requests
+from mysql import MysqlClient
 
 app = Flask(__name__)
+
+def mysql_client_from_env():
+    MYSQL_HOST = os.getenv("MYSQL_HOST")
+    MYSQL_USERNAME = os.getenv("MYSQL_USERNAME")
+    MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
+    MYSQL_DB = os.getenv("MYSQL_DB")
+    MYSQL_TABLE = os.getenv("MYSQL_TABLE")
+
+    client = MysqlClient(
+        db=MYSQL_DB, username=MYSQL_USERNAME, password=MYSQL_PASSWORD, host=MYSQL_HOST, table=MYSQL_TABLE
+    )
+    client.connect_if_not_connected()
+    return client
 
 @app.route("/", methods=["GET"])
 def index():
@@ -99,9 +113,28 @@ def generate():
     except requests.exceptions.RequestException:
         phrase = "Have a good day!" 
 
-    # Generate the new heart image
+    # Générer la nouvelle image de coeur
     generate_heart_image(name, message, color)
 
+    # Sauvegarder dans la base de données
+    client = mysql_client_from_env()
+    # Récupérer le prochain id (max(id) + 1)
+    db_connection = client.get_connection()
+    try:
+        with db_connection.cursor() as cursor:
+            cursor.execute(f"SELECT MAX(id) FROM {client.db}.{client.table}")
+            result = cursor.fetchone()
+            next_id = (result[0] or 0) + 1
+    except Exception as e:
+        next_id = 1
+    finally:
+        if db_connection.is_connected():
+            db_connection.close()
+
+    # Réinsérer la connexion pour l'insertion (car close plus haut)
+    client.connect_if_not_connected()
+    client.insert_row(client.db, client.table, next_id, name, message)
+    
     # HTML page with cache-busting query string for the image
     html = f"""
     <!DOCTYPE html>
