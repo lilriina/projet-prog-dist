@@ -15,10 +15,3 @@ spec:
                 name: heart
                 port:
                   number: 5000
-          - path: /titre
-            pathType: Prefix
-            backend:
-              service:
-                name: titre
-                port:
-                  number: 5000

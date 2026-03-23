@@ -94,7 +94,7 @@ def generate():
     color = request.form["color"]
 
     try:
-        response = requests.get("http://titre/titre")  # service name
+        response = requests.get("http://titre:5001/titre")  # service name
         phrase = response.json().get("titre", "Have a good day!")
     except requests.exceptions.RequestException:
         phrase = "Have a good day!" 

@@ -20,7 +20,9 @@ spec:
             - name: MYSQL_HOST
               value: "mysql"  # Nom du service MySQL
             - name: MYSQL_DB
-              value: "db_exemple"  # Changer selon la base
+              value: "db_exemple"
+            - name: MYSQL_TABLE
+              value: "MESSAGE"
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
