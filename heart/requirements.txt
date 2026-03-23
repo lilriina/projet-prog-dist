@@ -3,3 +3,4 @@ Pillow
 aggdraw
 numpy
 requests
+mysql-connector-python
