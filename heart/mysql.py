@@ -4,11 +4,12 @@ from mysql.connector import Error
 
 
 class MysqlClient:
-    def __init__(self, host, username, password, db):
+    def __init__(self, host, username, password, db, table):
         self.host = host
         self.username = username
         self.__password = password
         self.db = db
+        self.table = table
         self.__connection = None
 
     def connect_if_not_connected(self):
@@ -34,13 +35,13 @@ class MysqlClient:
     def get_connection(self):
         return self.__connection
 
-    def insert_row(self, table, primary_id, name, age, country):
-        logging.info(f"insert_row: {primary_id}")
+    def insert_row(self, db, table, id, name, message):
+        logging.info(f"insert_row: {id}")
         if self.connect_if_not_connected():
             db_connection = self.get_connection()
             insert_query = (
-                f"INSERT INTO {table} (id, name, age, country) "
-                f"VALUES ('{primary_id}', '{name}', {age}, '{country}')"
+                f"INSERT INTO {db}.{table} (id, name, message) "
+                f"VALUES ({id}, '{name}', '{message}')"
             )
 
             try:
@@ -53,12 +54,12 @@ class MysqlClient:
                 if db_connection.is_connected():
                     db_connection.close()
 
-    def delete_row(self, table, primary_id):
+    def delete_row(self, db, table, id):
         success_status = False
         if self.connect_if_not_connected():
             db_connection = self.get_connection()
-            delete_query = """DELETE FROM {table_name} WHERE id='{id}'""".format(
-                table_name=table, id=primary_id
+            delete_query = """DELETE FROM {db}.{table_name} WHERE id='{id}'""".format(
+                table_name=table, id=id
             )
             logging.info(f"delete_query: {delete_query}")
 
