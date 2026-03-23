@@ -16,4 +16,29 @@ spec:
         - image: gimenezm/heart:v0
           imagePullPolicy: IfNotPresent
           name: heart
+          env:
+            - name: MYSQL_HOST
+              value: "mysql"  # Nom du service MySQL
+            - name: MYSQL_DB
+              value: "db_exemple"  # Changer selon la base
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+          ports:
+            - containerPort: 5000 # Port de l'app
+              name: http
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
       restartPolicy: Always
