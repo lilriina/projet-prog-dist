@@ -3,7 +3,7 @@ from heart_utils import generate_heart_image, OUTPUT_PATH
 import random
 import os
 import requests
-from mysql import MysqlClient
+from db_mysql import MysqlClient
 
 app = Flask(__name__)
 

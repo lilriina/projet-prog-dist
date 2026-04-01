@@ -13,8 +13,8 @@ spec:
         app: heart
     spec:
       containers:
-        - image: gimenezm/heart:v0
-          imagePullPolicy: IfNotPresent
+        - image: gimenezm/heart:v1
+          imagePullPolicy: Always
           name: heart
           env:
             - name: MYSQL_HOST
@@ -23,7 +23,7 @@ spec:
               value: "db_exemple"
             - name: MYSQL_TABLE
               value: "MESSAGE"
-            - name: MYSQL_USER
+            - name: MYSQL_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: mysql-secret
