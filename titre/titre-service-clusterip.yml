@@ -6,7 +6,7 @@ spec:
   ports:
     - port: 5001
       protocol: TCP
-      targetPort: 5001
+      targetPort: 5000
   selector:
     app: titre
   type: ClusterIP
