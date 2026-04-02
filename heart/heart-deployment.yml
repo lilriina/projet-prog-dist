@@ -13,15 +13,17 @@ spec:
         app: heart
     spec:
       containers:
-        - image: gimenezm/heart:v0
-          imagePullPolicy: IfNotPresent
+        - image: gimenezm/heart:v1
+          imagePullPolicy: Always
           name: heart
           env:
             - name: MYSQL_HOST
               value: "mysql"  # Nom du service MySQL
             - name: MYSQL_DB
-              value: "db_exemple"  # Changer selon la base
-            - name: MYSQL_USER
+              value: "db_exemple"
+            - name: MYSQL_TABLE
+              value: "MESSAGE"
+            - name: MYSQL_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: mysql-secret

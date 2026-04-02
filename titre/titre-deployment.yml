@@ -13,7 +13,7 @@ spec:
         app: titre
     spec:
       containers:
-        - image: gimenezm/titre:v0
-          imagePullPolicy: IfNotPresent
+        - image: gimenezm/titre:v1
+          imagePullPolicy: Always
           name: titre
       restartPolicy: Always
