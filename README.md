@@ -1,4 +1,4 @@
-# Projet 2025 — Microservices avec Docker & Kubernetes
+# Projet 2026 — Microservices avec Docker & Kubernetes
 
 Projet utilisant des microservices (REST / gRPC), Docker et Kubernetes.
 
